@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>Fish.Api</RootNamespace>
+    <UserSecretsId>9e2f6c1a-4b73-4d0e-9a8f-1c5d7e3b0a12</UserSecretsId>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Fish.Api.Data/Fish.Api.Data.csproj" />
+    <ProjectReference Include="../Fish.Api.Services/Fish.Api.Services.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Fish.Api.Tests" />
+  </ItemGroup>
+</Project>

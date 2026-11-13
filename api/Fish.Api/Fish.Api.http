@@ -1,0 +1,10 @@
+@baseUrl = http://localhost:5188
+
+### Health check (S2)
+GET {{baseUrl}}/health
+
+### Master test-data reset (Development / Test only).
+### Set the X-Test-Data-Key header to the value of the env var named in TestData:KeyEnvVar.
+### The value itself is never stored in this repository.
+POST {{baseUrl}}/TestData/Reset/master
+X-Test-Data-Key: <E2E_TEST_DATA_KEY>
