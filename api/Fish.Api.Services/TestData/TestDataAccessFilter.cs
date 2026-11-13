@@ -9,7 +9,8 @@ namespace Fish.Api.Services.TestData;
 
 /// <summary>
 /// Guards reset actions with a fixed-time compare of the
-/// <c>X-Test-Data-Key</c> header against the environment variable named by
+/// <c>X-Test-Data-Key</c> header against the key resolved from options
+/// (test-host <c>TestData:Key</c>) or the environment variable named by
 /// <see cref="TestDataOptions.KeyEnvVar"/>. This test app has no sign-in, so
 /// there is no JWT / persona check (a documented deviation from the
 /// API.Framework template's signed-in persona requirement).
@@ -20,12 +21,19 @@ public sealed class TestDataAccessFilter(IOptions<TestDataOptions> options) : IA
 
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        var expected = Environment.GetEnvironmentVariable(options.Value.KeyEnvVar) ?? string.Empty;
+        var expected = TestDataRegistration.ResolveKey(options.Value) ?? string.Empty;
         var given = context.HttpContext.Request.Headers[KeyHeaderName].ToString();
+
+        if (string.IsNullOrEmpty(expected))
+        {
+            // No key configured: the endpoint is unavailable (404), same as
+            // a missing registration. Never echo or log a key.
+            context.Result = new NotFoundResult();
+            return;
+        }
 
         if (!KeysMatch(expected, given))
         {
-            // Never echo or log the key.
             context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
         }
     }

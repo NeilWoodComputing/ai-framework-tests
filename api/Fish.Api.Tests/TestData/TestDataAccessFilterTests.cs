@@ -16,7 +16,7 @@ public sealed class TestDataAccessFilterTests : IDisposable
     public TestDataAccessFilterTests()
     {
         _previous = Environment.GetEnvironmentVariable(EnvName);
-        Environment.SetEnvironmentVariable(EnvName, "expected-key");
+        Environment.SetEnvironmentVariable(EnvName, null);
     }
 
     public void Dispose() => Environment.SetEnvironmentVariable(EnvName, _previous);
@@ -24,22 +24,52 @@ public sealed class TestDataAccessFilterTests : IDisposable
     [Fact]
     public void OnAuthorization_WrongKey_Returns403()
     {
-        var context = Authorize("wrong-key");
+        var context = Authorize("wrong-key", new TestDataOptions { Key = "expected-key" });
         Assert.IsType<StatusCodeResult>(context.Result);
         Assert.Equal(StatusCodes.Status403Forbidden, ((StatusCodeResult)context.Result!).StatusCode);
     }
 
     [Fact]
-    public void OnAuthorization_MissingKey_Returns403()
+    public void OnAuthorization_MissingHeader_Returns403()
     {
-        var context = Authorize(null);
+        var context = Authorize(null, new TestDataOptions { Key = "expected-key" });
         Assert.Equal(StatusCodes.Status403Forbidden, ((StatusCodeResult)context.Result!).StatusCode);
     }
 
     [Fact]
     public void OnAuthorization_MatchingKey_Allows()
     {
-        var context = Authorize("expected-key");
+        var context = Authorize("expected-key", new TestDataOptions { Key = "expected-key" });
+        Assert.Null(context.Result);
+    }
+
+    [Fact]
+    public void OnAuthorization_NoKeyConfigured_Returns404()
+    {
+        var context = Authorize("any-key", new TestDataOptions { KeyEnvVar = EnvName });
+        Assert.IsType<NotFoundResult>(context.Result);
+    }
+
+    [Fact]
+    public void OnAuthorization_OptionsKeyPreferredOverEnvironment()
+    {
+        Environment.SetEnvironmentVariable(EnvName, "from-environment");
+        var context = Authorize(
+            "from-configuration",
+            new TestDataOptions { Key = "from-configuration", KeyEnvVar = EnvName });
+        Assert.Null(context.Result);
+
+        var rejected = Authorize(
+            "from-environment",
+            new TestDataOptions { Key = "from-configuration", KeyEnvVar = EnvName });
+        Assert.Equal(StatusCodes.Status403Forbidden, ((StatusCodeResult)rejected.Result!).StatusCode);
+    }
+
+    [Fact]
+    public void OnAuthorization_FallsBackToEnvironmentVariable()
+    {
+        Environment.SetEnvironmentVariable(EnvName, "expected-key");
+        var context = Authorize("expected-key", new TestDataOptions { KeyEnvVar = EnvName });
         Assert.Null(context.Result);
     }
 
@@ -52,7 +82,7 @@ public sealed class TestDataAccessFilterTests : IDisposable
         Assert.True(TestDataAccessFilter.KeysMatch("abc", "abc"));
     }
 
-    private static AuthorizationFilterContext Authorize(string? givenKey)
+    private static AuthorizationFilterContext Authorize(string? givenKey, TestDataOptions options)
     {
         var http = new DefaultHttpContext();
         if (givenKey is not null)
@@ -62,7 +92,7 @@ public sealed class TestDataAccessFilterTests : IDisposable
 
         var actionContext = new ActionContext(http, new RouteData(), new ActionDescriptor());
         var context = new AuthorizationFilterContext(actionContext, []);
-        var filter = new TestDataAccessFilter(Options.Create(new TestDataOptions { KeyEnvVar = EnvName }));
+        var filter = new TestDataAccessFilter(Options.Create(options));
         filter.OnAuthorization(context);
         return context;
     }

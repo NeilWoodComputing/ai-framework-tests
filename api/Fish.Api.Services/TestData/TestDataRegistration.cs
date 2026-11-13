@@ -8,6 +8,11 @@ public static class TestDataRegistration
 {
     public const string NpgsqlProviderName = "Npgsql.EntityFrameworkCore.PostgreSQL";
 
+    /// <summary>
+    /// Environment and flag checks only. The reset key is resolved later,
+    /// at request time, from options / configuration so a test host's
+    /// in-memory overrides win over any process environment variable.
+    /// </summary>
     public static bool IsEnabled(TestDataOptions options, IHostEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -28,8 +33,30 @@ public static class TestDataRegistration
             return false;
         }
 
-        var key = Environment.GetEnvironmentVariable(options.KeyEnvVar);
-        return !string.IsNullOrEmpty(key);
+        return true;
+    }
+
+    /// <summary>
+    /// Resolves the reset key: <see cref="TestDataOptions.Key"/> (test-host
+    /// configuration) first, then the process environment variable named by
+    /// <see cref="TestDataOptions.KeyEnvVar"/>. Never logs or returns the
+    /// value to a caller outside the access filter.
+    /// </summary>
+    public static string? ResolveKey(TestDataOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        if (!string.IsNullOrEmpty(options.Key))
+        {
+            return options.Key;
+        }
+
+        if (string.IsNullOrEmpty(options.KeyEnvVar))
+        {
+            return null;
+        }
+
+        var fromEnv = Environment.GetEnvironmentVariable(options.KeyEnvVar);
+        return string.IsNullOrEmpty(fromEnv) ? null : fromEnv;
     }
 
     public static IServiceCollection AddTestData(this IServiceCollection services, IConfiguration configuration)

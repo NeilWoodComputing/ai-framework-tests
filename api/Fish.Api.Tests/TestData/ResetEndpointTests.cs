@@ -49,4 +49,23 @@ public sealed class ResetEndpointTests
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
+
+    [Fact]
+    public async Task ResetMaster_Unavailable_WhenKeyIsNotConfigured()
+    {
+        await using var factory = new FishApiFactory(
+            "Test",
+            enableTestData: true,
+            extra: new Dictionary<string, string?>
+            {
+                ["TestData:Key"] = "",
+                ["TestData:KeyEnvVar"] = "FISH_API_UNITTEST_UNSET_KEY_SHOULD_NOT_EXIST",
+            });
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add(TestDataAccessFilter.KeyHeaderName, FishApiFactory.TestKeyValue);
+
+        var response = await client.PostAsync("/TestData/Reset/master", content: null);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 }

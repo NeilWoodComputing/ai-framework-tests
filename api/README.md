@@ -23,7 +23,7 @@ cd api/Fish.Api
 dotnet user-secrets set "ConnectionStrings:FishConnection" "<your-local-fish_dev-connection-string>"
 ```
 
-The Development reset endpoint also needs the environment variable named `E2E_TEST_DATA_KEY` to be set in your shell or user environment. The value is a shared test key, not a login password. If that variable is missing, the reset controller is not registered.
+The Development reset endpoint also needs the environment variable named `E2E_TEST_DATA_KEY` to be set in your shell or user environment. The value is a shared test key, not a login password. The key is resolved at request time from configuration (`TestData:Key`, used by the test host) or from that variable. If the resolved key is missing, the reset endpoint returns 404.
 
 Development applies migrations on startup (`InitialisationSettings:MigrateDatabase` is `true`). The design-time factory, used by `dotnet ef`, reads the same user-secrets. It has no fallback connection string.
 
@@ -79,12 +79,12 @@ The unit and host tests do not need a running PostgreSQL instance. They cover th
 |------|--------|
 | Master | `POST /TestData/Reset/master` |
 | Batch (hooks for later tickets) | `POST /TestData/Reset/{scenarioKey}` |
-| Header | `X-Test-Data-Key`, compared with a fixed-time equals against the variable named by `TestData:KeyEnvVar` |
+| Header | `X-Test-Data-Key`, compared with a fixed-time equals against `TestData:Key` (test hosts) or the variable named by `TestData:KeyEnvVar` |
 | Development database | `fish_dev` (`TestData:RequiredDatabase`) |
 | Test database | `fish_test` |
 | Production | unavailable (404); start-up fails if `TestData:Enabled` is true |
 
-Because this test app has no sign-in, the reset call is not also gated by a JWT persona. It is still refused when the environment is not allowed, the key is missing or wrong, the provider is not PostgreSQL, or the database name does not match `RequiredDatabase`. Missing key at start-up means the controller is removed entirely.
+Because this test app has no sign-in, the reset call is not also gated by a JWT persona. It is still refused when the environment is not allowed, the key is missing or wrong, the provider is not PostgreSQL, or the database name does not match `RequiredDatabase`. A missing key at request time means the endpoint returns 404. Registration itself is based on the environment and the Enabled flag, not on a process environment variable at start-up.
 
 A successful master reset truncates only EF model tables (none yet in this scaffold), never `__ef_migrations_history`, then runs registered seed units. Features add seed units by registering an `ITestSeedUnit` (the `baseline.migration-seed` hook is already registered).
 
