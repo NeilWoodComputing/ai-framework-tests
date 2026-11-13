@@ -1,0 +1,13 @@
+node_modules
+.next
+.next-test
+tsconfig.tsbuildinfo
+out
+dist
+*.log
+.env
+.env.*
+!.env.example
+coverage
+playwright-report
+test-results

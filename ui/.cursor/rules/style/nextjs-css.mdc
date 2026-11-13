@@ -1,0 +1,50 @@
+---
+description: CSS modules and design-token styling conventions for Next.js System UI
+globs: "**/*.{css,module.css}"
+alwaysApply: false
+---
+
+# CSS Conventions
+
+## Token sources (priority)
+
+1. Semantic CSS variables from `src/framework/design-system/theme/tokens.css` — `--app-canvas-bg`, `--app-input-border`, `--app-text-primary`, etc.
+2. Ink / brand tokens — `--ink-*`, `--primary-action`, `--system-red`, `--system-green`.
+3. Never introduce a new hardcoded hex when an existing token fits.
+
+## Global vs component styles
+
+| Location | Purpose |
+|----------|---------|
+| `theme/tokens.css` | `:root` and `html[data-theme='dark']` variables, base `html`/`body` |
+| `src/app/globals.css` | App-wide imports / resets that belong at the Next root |
+| `{Component}.module.css` | Component-scoped styles only |
+
+Import tokens once from the app layout / globals — components consume `var(--...)`.
+
+## CSS modules
+
+```css
+.button {
+  background: var(--primary-action);
+  color: var(--ink-white);
+  border-radius: var(--radius-md);
+}
+```
+
+- camelCase class exports consumed as `styles.primaryAction`.
+- Prefer composing classes in TS (`[styles.a, condition && styles.b].filter(Boolean).join(' ')`).
+- Nesting: keep shallow (≤ 3 levels).
+
+## Rem sizing
+
+`html { font-size: 62.5%; }` so `1rem ≈ 10px`. Use rem for spacing, type, and control heights to match Angular Unity UI.
+
+## Dark mode
+
+Theme toggles `html[data-theme='dark']`. Component CSS should use semantic tokens that already change under that selector — avoid `html[data-theme='dark']` forks inside every module unless a one-off exception is required.
+
+## What not to do
+
+- Do not add Bootstrap component CSS; layout spacing is custom / flex / CSS modules.
+- Do not style raw `<button>` / `<input>` in features when `@design-system` already provides the control.

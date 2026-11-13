@@ -1,0 +1,159 @@
+---
+description: System design-system component library for Next.js — names, props, composition, state, styling
+globs: "src/framework/design-system/**/*,src/features/design-system-showcase/**/*,**/*.{tsx,jsx}"
+alwaysApply: false
+---
+
+# Design System (Component Library)
+
+**Framework-first:** compose UI from `@design-system` before inventing feature-local controls. The live catalogue is `/` (`DesignSystemShowcase`). The written catalogue is `src/framework/design-system/README.md`.
+
+Angular `app-*` selectors map to PascalCase React components exported from `@design-system` (see mapping table below).
+
+## Import rule
+
+```tsx
+import { Button, Input, PageLayout, H1, P, Callout, RoutedModal } from '@design-system';
+```
+
+Never import with deep relative paths into `src/framework/design-system/`. Re-export new public components from `src/framework/design-system/index.ts`.
+
+## Catalogue (current public API)
+
+| Component | Use for | Key props |
+|-----------|---------|-----------|
+| `Button` | All actions (not raw `<button>`) | `theme`, `loading`, `circle`, `buttonSize`, `fullWidth`, `tid`, `disabled` |
+| `Input` | Text / number / date fields | `label`, `hideLabel`, `requiredField`, `hint`, `error`, `inputSize`, `tid` |
+| `PasswordInput` | Password fields | same pattern as `Input` + show/hide |
+| `FormField`, `FormFieldLabel`, `FormFieldError` | Compose custom controls with shared label/error chrome | `tid`, `requiredField`, `error` |
+| `Checkbox` | Boolean checkbox | `label`, `tid`, standard input attrs |
+| `Switch` | On/off toggle (`role="switch"`) | `label`, `tid`, `checked`, `readOnly` |
+| `Badge` | Small count / tag chip | `children` |
+| `PageLayout` | Page shell | `header`, `children`, `footer` |
+| `H1`, `H2`, `H3`, `P` | Typography (not bare headings/paragraphs with custom classes) | `H3` has `variant?: 'default' \| 'section'` |
+| `Callout` | Inline alerts | `type: 'info' \| 'success' \| 'warning' \| 'error'` |
+| `Icon` | Spec icon glyphs | `name: IconName`, `size` (default `1.8rem`) |
+| `Modal` | Imperative / local dialog portal | `open`, `onClose`, `size`, `presentation`, `level`, `allowKeyboardClose`, `tid`, `ariaLabel` |
+| `ModalShell` | Title / body / footer chrome inside a modal | `title`, `onClose`, `loading`, `formErrors`, `footerRight`, `tid` |
+| `RoutedModal` | Feature create/edit/view modals tied to route dismiss | `title`, `tid`, `dismissHref`, `preferBackOnClose`, `size`, `level`, `loading`, `formErrors`, `closeLabel`, `footerRight` |
+| `ConfirmModal` | Confirm / cancel prompt | see component props |
+| `DropdownMenu` | Actions / overflow menus (portalled, never clipped) | `items`, `renderTrigger(triggerProps)`, `align`, `onTriggerIntent`, `tid` |
+| `ThemeProvider`, `useTheme` | Light/dark via `html[data-theme]` | wrap app shell |
+
+Hooks (also from `@design-system`):
+
+- `useModalDismiss(dismissHref, preferBackOnClose?)` — close routed modal
+- `useModalNavigate()` — `open(href)` for parallel-route modals
+- `useModalPreload(href, preload?)` — warm a routed modal from its opening page (see `nextjs-modal-routing.mdc`)
+
+Types: `ButtonTheme`, `ButtonProps`, `InputProps`, `ModalSize`, `ModalPresentation`, `ModalLevel`, `CalloutType`, `IconName`.
+
+## Angular → React name map
+
+| Angular | React (`@design-system`) |
+|---------|--------------------------|
+| `app-button` | `Button` |
+| `app-input` (and similar form controls) | `Input`, `PasswordInput`, `Checkbox`, `Switch` |
+| `app-form-label` | `FormFieldLabel` / `Input` `label` |
+| `app-h1` … `app-h5`, `app-p` | `H1`, `H2`, `H3`, `P` (extend typography as needed) |
+| `app-page-layout` slots `[header]`/`[body]`/`[footer]` | `PageLayout` props `header` / `children` / `footer` |
+| `app-callout` | `Callout` |
+| `app-icon` | `Icon` |
+| `app-badge` | `Badge` |
+| Form modal template | `RoutedModal` + `ModalShell` |
+| MatDialog blade/dialog | `Modal` `presentation: 'dialog' \| 'blade'` |
+
+Not yet ported (prefer extend `@design-system` when needed): charts, loaders, tab-list, slide-out-only shells, view-card-layout, dataset-select as standalone. JSON Forms renderers live under `@json-schema-form`, not raw design-system forks.
+
+## Button conventions
+
+```tsx
+<Button theme="primary-action" tid="save-item" loading={inFlight} onClick={onSave}>
+  Save
+</Button>
+<Button theme="secondary-action" tid="cancel-item" onClick={onCancel}>
+  Cancel
+</Button>
+```
+
+`ButtonTheme`: `'primary-action' | 'secondary-action' | 'system-red' | 'system-green' | 'alternate'`.
+
+- Default `type="button"` (set `type="submit"` only inside forms that need it).
+- `loading` disables the button and shows the overlay spinner.
+- Destructive confirm actions use `theme="system-red"`.
+
+## Form controls
+
+- Prefer `Input` / `Checkbox` / `Switch` / `PasswordInput` for manual forms (e.g. sign-in, showcase).
+- Entity create/edit that has a server JSON schema uses `@json-schema-form` (`JsonSchemaForm`) — do **not** hand-build field lists that duplicate the schema. See `nextjs-json-schema-forms.mdc`.
+- Pass `tid` on interactive controls; `Input` renders `data-tid` on the input and `data-tid="{tid}-field"` on the wrapper.
+- Surface field errors via the `error` prop (or `FormFieldError`); do not invent parallel error UI.
+
+## Typography & layout
+
+```tsx
+<PageLayout
+  header={
+    <>
+      <H1>Page title</H1>
+      <P>Supporting description.</P>
+    </>
+  }
+>
+  {/* body */}
+</PageLayout>
+```
+
+Use `H1`–`H3` and `P` instead of bare `<h1>` / `<p>` with one-off classes. Section labels in showcases use `<H3 variant="section">`.
+
+## Callouts & feedback
+
+```tsx
+<Callout type="error">{message}</Callout>
+```
+
+Use for page/modal-level messages. Field-level messages stay on the control.
+
+## Modals (component API)
+
+| Need | Use |
+|------|-----|
+| Feature form opened by URL (grid Add/Edit) | `RoutedModal` |
+| Local demo / non-routed dialog | `Modal` + `ModalShell` |
+| Delete / confirm | `ConfirmModal` |
+
+`ModalSize`: `'responsive' | 'small' | 'large' | 'extraLarge'`.  
+`ModalPresentation`: `'dialog'` (default) | `'blade'`.  
+`ModalLevel`: `'primary' | 'secondary' | 'tertiary'` (stacking).
+
+Set `allowKeyboardClose={false}` when matching Angular form-modal behaviour that blocks Esc/backdrop dismiss during edit, if the product requires it.
+
+## Composition & state
+
+- Design-system components are presentational or lightly stateful (controlled inputs via props). Feature orchestration (load, save, permissions) stays in feature hooks / data providers.
+- Client components that use hooks or browser APIs start with `'use client'`.
+- Prefer controlled form values (`value` + `onChange`) when wiring to entity form state.
+- Theme: wrap the app with `ThemeProvider`; toggle via `useTheme().toggleTheme`. Theme attribute is `html[data-theme='light'|'dark']`.
+
+## Styling inside the library
+
+- Co-locate `{Name}.module.css` beside `{Name}.tsx`.
+- Colours and surfaces come from `theme/tokens.css` CSS variables (`--primary-action`, `--app-*`, `--ink-*`). Do not introduce new hardcoded hex when a token exists.
+- `html { font-size: 62.5%; }` — size with **rem** (1rem ≈ 10px).
+- Dark mode: rely on semantic tokens that already flip under `html[data-theme='dark']`.
+- Menus / popovers: use `DropdownMenu` (portal to `<body>` + `--z-index-popover`). Do not hand-roll `position: absolute` menus inside tables or modals, and do not remove `overflow` on grid / modal wrappers to un-clip them.
+
+## Adding a new design-system component
+
+1. Create folder under the right group: `buttons/`, `forms/`, `layout/`, `components/`, `typography/`, `theme/`.
+2. Files: `ComponentName.tsx`, `ComponentName.module.css` (if styled).
+3. Export props interface; accept optional `tid?: string` on interactive elements and set `data-tid={tid}`.
+4. Export from `src/framework/design-system/index.ts`.
+5. Document in `src/framework/design-system/README.md` and add a section (or controls) to `DesignSystemShowcase` when the control is user-visible.
+6. There is no Storybook in this Next.js repo yet; the showcase page is the visual contract.
+
+## Reference
+
+- Implementation: `src/framework/design-system/`
+- Showcase: `src/features/design-system-showcase/DesignSystemShowcase.tsx` → `/`
+- Tokens: `src/framework/design-system/theme/tokens.css`

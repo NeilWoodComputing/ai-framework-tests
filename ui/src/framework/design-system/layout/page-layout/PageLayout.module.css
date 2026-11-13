@@ -1,0 +1,27 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 2.4rem 2.4rem 0;
+  background: var(--app-surface-raised);
+  border-bottom: 1px solid var(--app-grid-border);
+}
+
+.inner {
+  max-width: 120rem;
+  margin: 0 auto;
+}
+
+.main {
+  flex: 1;
+  padding: 2.4rem;
+}
+
+.divider {
+  margin: 1.6rem 0 0;
+  border: none;
+  border-top: 1px solid var(--app-grid-border);
+}

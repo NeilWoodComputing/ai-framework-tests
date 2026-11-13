@@ -1,0 +1,29 @@
+---
+description: Routed list pages show filters + results on the page; modals only for forms and confirmations
+alwaysApply: true
+---
+
+# List Pages vs Modals (standing rule)
+
+A feature list that has its own route **is the page**. Do not put it in a modal.
+
+## Do
+
+- The route's `page.tsx` renders `PageLayout` with the page title / sub-text, then filters + `EntityGrid` results **inline**.
+- Open a `RoutedModal` **only** for the create / edit form (Add / Edit row actions, `+ Add` toolbar action).
+- Use `ConfirmModal` for delete / confirm prompts.
+- Form modals dismiss back to the list route (`dismissHref` = the list page href). Use `level="primary"` when the form sits directly over the page; `secondary` only when it stacks over another modal.
+- Full-page fallbacks for form URLs (`.../item`, `.../item/[id]`) render the list page **plus** the form modal on top.
+
+## Don't
+
+- Wrap the list / search / results in a modal (no "Manage X" results modal).
+- Auto-open a modal on page load, or make the user open a modal just to see results.
+- Add a landing page whose only job is a link or button that opens the list.
+
+## Reference
+
+- `src/features/animals/manage-animals/` (`ManageAnimalsPage` + `ManageAnimals` inline; `AnimalFormModal` is the only routed modal)
+- `src/app/examples/animals/` (`page.tsx` = list; `@modal/(.)manage/item/...` = form only)
+
+`reference-data`'s `ManageReferenceDataItemsModal` (items list in a modal) predates this rule. Do not copy it for new list pages.

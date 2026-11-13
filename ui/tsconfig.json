@@ -1,0 +1,69 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@design-system": [
+        "./src/framework/design-system/index.ts"
+      ],
+      "@design-system/*": [
+        "./src/framework/design-system/*"
+      ],
+      "@entity-framework": [
+        "./src/framework/entity-framework/index.ts"
+      ],
+      "@entity-framework/*": [
+        "./src/framework/entity-framework/*"
+      ],
+      "@shell/*": [
+        "./src/shell/*"
+      ],
+      "@features/*": [
+        "./src/features/*"
+      ],
+      "@auth/*": [
+        "./src/framework/auth/*"
+      ],
+      "@json-schema-form": [
+        "./src/framework/json-schema-form/index.ts"
+      ],
+      "@json-schema-form/*": [
+        "./src/framework/json-schema-form/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".next-test/types/**/*.ts",
+    ".next/types/**/*.ts",
+    "next-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "e2e"
+  ]
+}

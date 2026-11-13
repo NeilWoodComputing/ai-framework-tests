@@ -1,0 +1,77 @@
+---
+description: Entity / manage grid pattern — config, columns, hooks, thin grid wrapper
+globs: "**/*-grid*/**/*,**/manage-*/**/*,**/use-*-grid.ts*"
+alwaysApply: false
+---
+
+# Entity Grid Pattern
+
+Grids compose `@entity-framework` primitives. Feature code wires providers and renders `<EntityGrid>` — it does not reimplement tables.
+
+A routed list page renders its grid **inline on the page**, not inside a modal (see `nextjs-list-pages.mdc`).
+
+## Folder structure
+
+```
+{feature}-grid/   (or manage-{entity}/)
+  {Feature}Grid.tsx                 # thin wrapper
+  use-{feature}-grid.ts(x)          # optional hook owning config + actions
+  {feature}-grid.config.ts          # static EntityGridConfig fields (optional)
+  columns/
+    {feature}-grid-columns.ts(x)
+  state/
+    models/
+    {feature}-search.data-provider.ts
+```
+
+Shared across the feature area:
+
+```
+shared/state/{feature}-update.service.ts
+shared/utils/{feature}-routes.ts
+```
+
+## Wiring
+
+```tsx
+const { searchState, authInFlight, isAuthenticated } = useAuthenticatedEntitySearch(
+  searchProvider,
+  defaultSearch
+);
+const gridState = useEntityGridState(gridConfig, columns, searchState, updateService);
+
+return (
+  <EntityGridAuthGate authInFlight={authInFlight} isAuthenticated={isAuthenticated}>
+    <EntityGrid gridState={gridState} headerActions={...} />
+  </EntityGridAuthGate>
+);
+```
+
+Local (non-URL) search: `useAuthenticatedEntitySearchLocal`.
+
+## Grid config
+
+`EntityGridConfig` should set:
+
+- `tid`, `defaultSortColumn`, `pageSize`, `hasPaging`
+- `rowActions` / `rowActionsDisplay: 'menu'` when using overflow menus (rendered by `DropdownMenu`, portalled so it is never clipped by the table)
+- `prefetchHref` on row actions that open a route (Edit) — `EntityGrid` prefetches it on hover / focus
+- `headerToolbarActions` for Add / primary toolbar actions
+- Add / Edit open the form modal via `useModalNavigate().open(href)` (the grid itself stays on the page)
+
+## Columns
+
+Define in `columns/{feature}-grid-columns.ts(x)`. Keep `headerLabel` / `propertyName` meaningful. Use framework cell helpers from `@entity-framework` where available; action menus via config `rowActions`, not ad-hoc button columns.
+
+## Refresh after mutations
+
+```ts
+updateService.trigger(); // after create/update/delete
+```
+
+Grid state subscribes through `useEntityGridState(..., updateService)`.
+
+## References
+
+- `src/features/reference-data/reference-data-types-grid/`
+- `src/features/animals/manage-animals/`

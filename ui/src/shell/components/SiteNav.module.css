@@ -1,0 +1,19 @@
+.nav {
+  display: flex;
+  gap: 1.6rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--app-grid-border);
+}
+
+.session {
+  font-size: 1.3rem;
+  color: var(--ink-45);
+}
+
+.actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}

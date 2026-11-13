@@ -1,0 +1,20 @@
+/* Decision 30 boolean grid cells: knock-out circle painted in currentColor (theme tokens only). */
+.booleanCircle {
+  display: inline-flex;
+  flex-shrink: 0;
+  vertical-align: middle;
+  width: var(--boolean-cell-size, 1.6rem);
+  height: var(--boolean-cell-size, 1.6rem);
+}
+
+.booleanTrue {
+  color: var(--app-boolean-true-fill);
+}
+
+.booleanFalse {
+  color: var(--app-boolean-false-fill);
+}
+
+.booleanNull {
+  color: var(--app-text-primary);
+}

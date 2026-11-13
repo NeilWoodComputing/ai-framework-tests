@@ -1,0 +1,30 @@
+.content {
+  padding: 2.4rem;
+  min-width: min(48rem, 100%);
+}
+
+.title {
+  margin: 0 0 1.6rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.message {
+  margin: 0 0 2.4rem;
+  font-size: 1.4rem;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.6rem;
+  align-items: center;
+}
+
+.actionsRight {
+  display: flex;
+  justify-content: flex-end;
+}

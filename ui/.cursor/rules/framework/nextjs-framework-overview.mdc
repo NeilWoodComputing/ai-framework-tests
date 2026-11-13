@@ -1,0 +1,68 @@
+---
+description: UI.NextJs.Framework architecture — config, framework, features, API env
+alwaysApply: true
+---
+
+# UI.NextJs.Framework Architecture
+
+Next.js 15 App Router app mirroring Unity.UI.Framework layout and patterns in React.
+
+## Framework-first
+
+Always use shared framework primitives before building custom UI, state, or API layers:
+
+| Need | Use |
+|------|-----|
+| Buttons, typography, layout, callouts, icons, badges | `@design-system` |
+| List / search UI | `@entity-framework` (`EntityGrid`, search + grid hooks) |
+| Create/edit form from server JSON Schema | `@json-schema-form` (`JsonSchemaForm`, `useJsonSchemaEntityForm`) |
+| Routed feature modals (create / edit forms only) | `@design-system` `RoutedModal` + App Router `@modal` parallel route |
+| API HTTP | `systemApiFetch` from `@/framework/api/system-api-fetch` |
+| Auth session | `@auth/*` (`useAuth`, sign-in) |
+
+Prefer extending `src/framework/` over one-off feature reimplementations.
+
+## Layout
+
+| Path | Purpose |
+|------|---------|
+| `src/config/` | `environment.ts`, `api-routes.ts`, `api-url.ts` |
+| `src/framework/design-system/` | Component library |
+| `src/framework/entity-framework/` | Grids, search, entity providers |
+| `src/framework/json-schema-form/` | Schema forms + client validation against server schema |
+| `src/framework/api/` | `systemApiFetch` |
+| `src/framework/auth/` | Auth provider / tokens |
+| `src/features/` | Product features (thin wiring) |
+| `src/app/` | Next.js routes, layouts, parallel `@modal` slots |
+| `src/shell/` | Chrome such as `SiteNav` |
+
+## Path aliases
+
+Import via aliases from `tsconfig.json`: `@design-system`, `@entity-framework`, `@json-schema-form`, `@auth/*`, `@shell/*`, `@features/*`, `@/*`.
+
+## API configuration
+
+- All API calls go to the System API (API.Framework, versionless routes, no `/v1`) URLs built from `environment.apiRoot` via `apiRoutes` in `src/config/api-routes.ts`.
+- `environment.apiRoot` reads `process.env.NEXT_PUBLIC_SYSTEM_API_ROOT` (Neil sets this in `.env.local`).
+- **Never open, create, or edit any `.env*` file. Never change the default string in `src/config/environment.ts`.**
+- `NEXT_PUBLIC_SYSTEM_APP_ID` is likewise owned by Neil in `.env.local`.
+- Centralize paths in `apiRoutes` — do not hardcode API URLs in features.
+
+## Feature activation
+
+1. Implement under `src/features/{area}/`
+2. Add routes under `src/app/...` that render feature components
+3. List pages render filters + results on the route itself; add parallel `@modal` intercepting routes only for create / edit forms (copy `examples/animals`; see `nextjs-list-pages.mdc`)
+
+## Component defaults
+
+- Design-system first (see `style/nextjs-design-system.mdc`)
+- Interactive roots: `'use client'`
+- `tid` on interactive elements
+- Single quotes, 2-space indent (see formatting rule)
+
+## Before implementing
+
+1. Read `src/framework/design-system/README.md` and `src/framework/README.md`
+2. Copy **reference-data** and/or **animals** feature slices — do not invent a parallel architecture
+3. Follow focused rules under `.cursor/rules/framework/` for grids, forms, modals, and state

@@ -1,0 +1,38 @@
+---
+description: TypeScript / React formatting standards for UI.NextJs.Framework
+alwaysApply: true
+---
+
+# Formatting
+
+| Setting | Value |
+|---------|-------|
+| Indent | 2 spaces (no tabs) |
+| Quotes (TS/TSX) | single |
+| Semicolons | yes |
+| Trailing commas | ES5/style as in neighbouring files |
+| Final newline | yes |
+| Trim trailing whitespace | yes |
+
+Match the density of sibling files in the same folder.
+
+## Vertical whitespace
+
+Do **not** double-space files (blank line between every statement).
+
+**Normal spacing:**
+
+- One blank line after the import block
+- One blank line between top-level declarations
+- No blank lines between consecutive statements inside a block unless grouping related logic
+
+**Bad:** blank line between every line inside a function.  
+**Good:** compact blocks with a single blank line between logical groups.
+
+After writing, if most non-empty lines are separated by a blank line, reformat before finishing.
+
+## TypeScript
+
+- `strict: true` (see `tsconfig.json`)
+- Prefer `interface` for component props objects; `type` for unions/aliases
+- Avoid `any`; use `unknown` and narrow

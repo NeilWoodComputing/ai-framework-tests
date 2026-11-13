@@ -1,0 +1,95 @@
+:root {
+  --primary: #186ca3;
+  --primary-action: #186ca3;
+  --system-red: #cf1337;
+  --system-green: #72b453;
+  --ink-white: #ffffff;
+  --ink-02: #fafafa;
+  --ink-10: #ebebed;
+  --ink-45: #95999d;
+  --ink-85: #333333;
+  --ink-100: #18181b;
+
+  --app-canvas-bg: #f4f6fb;
+  --app-text-primary: var(--ink-85);
+  --app-surface-raised: #ffffff;
+  --app-input-bg: var(--ink-02);
+  --app-input-border: var(--ink-10);
+  --app-input-fg: var(--ink-100);
+  --app-input-placeholder: var(--ink-45);
+  --app-form-error-text: var(--system-red);
+  --app-primary-action-fg: var(--ink-white);
+  --app-secondary-action-bg: var(--ink-white);
+  --app-secondary-action-border: var(--primary-action);
+  --app-secondary-action-fg: var(--primary-action);
+  --app-button-loading-overlay-bg: rgba(255, 255, 255, 0.8);
+  --app-loader-backdrop-bg-strong: rgba(255, 255, 255, 0.7);
+  --app-grid-row-hover-bg: var(--ink-02);
+  --app-grid-border: var(--ink-10);
+  --app-modal-backdrop-bg: rgba(204, 205, 211, 0.8);
+  --app-tag-chip-bg: var(--ink-10);
+  --app-switch-track-off-bg: var(--ink-45);
+  --app-switch-thumb-bg: var(--ink-white);
+  /* Boolean grid cells (decision 30): filled circle with the Check / Close glyph cut out (transparent), so the
+     row background shows through the glyph. The visible glyph contrast IS fill vs row: #fff 3.35 / 3.36,
+     hover #fafafa 3.21 / 3.22 (>= 3:1 non-text). No glyph colour token. --system-green / --system-red untouched. */
+  --app-boolean-true-fill: #609b44;
+  --app-boolean-false-fill: #ef5673;
+
+  --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-family-bold: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --radius-md: 8px;
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+  /* Stacking: modals use 1000 / 1100 / 1200 by level; popovers (menus) sit above every level. */
+  --z-index-popover: 1300;
+}
+
+html[data-theme='dark'] {
+  --primary: #0e486e;
+  --primary-action: #6aa3c9;
+  --app-canvas-bg: #1e2a33;
+  --app-text-primary: #e8eaed;
+  --app-surface-raised: #2d3a4a;
+  --app-input-bg: #3d4854;
+  --app-input-border: #5b6b78;
+  --app-input-fg: #f1f3f4;
+  --app-input-placeholder: #9aa0a6;
+  /* WCAG AA on dark surfaces: #ff9aa8 ≈ 4.63:1 on chip #3d4854, ≈ 6.12:1 on surface */
+  --app-form-error-text: #ff9aa8;
+  /* Dark text on lightened primary fill (#18181b on #6aa3c9 ≈ 6.49:1) */
+  --app-primary-action-fg: var(--ink-100);
+  --app-secondary-action-bg: var(--app-surface-raised);
+  --app-secondary-action-border: var(--primary-action);
+  --app-secondary-action-fg: var(--app-text-primary);
+  --app-button-loading-overlay-bg: rgba(30, 42, 51, 0.8);
+  --app-loader-backdrop-bg-strong: rgba(30, 42, 51, 0.7);
+  --app-grid-row-hover-bg: #3d4854;
+  --app-grid-border: #5b6b78;
+  --app-modal-backdrop-bg: rgba(15, 20, 26, 0.85);
+  --app-tag-chip-bg: #3d4854;
+  --app-switch-track-off-bg: #5b6b78;
+  /* Boolean grid cells (decision 30, glyph cut out): fill vs row #2d3a4a 5.61 / 5.75 and hover #3d4854
+     4.52 / 4.63; the cut-out glyph shows the row colour, so glyph-vs-fill contrast is the same pair. */
+  --app-boolean-true-fill: #8dc374;
+  --app-boolean-false-fill: #ff9aa8;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: 1.4rem;
+  line-height: 1.5;
+  color: var(--app-text-primary);
+  background: var(--app-canvas-bg);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}

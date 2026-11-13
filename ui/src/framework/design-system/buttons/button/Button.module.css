@@ -1,0 +1,96 @@
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 1rem 1.6rem;
+  font-family: var(--font-family-bold);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 2rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primaryAction {
+  background: var(--primary-action);
+  color: var(--app-primary-action-fg);
+}
+
+.secondaryAction {
+  background: var(--app-secondary-action-bg);
+  color: var(--app-secondary-action-fg);
+  border: 1px solid var(--app-secondary-action-border);
+}
+
+.systemRed {
+  background: var(--system-red);
+  color: var(--ink-white);
+}
+
+.systemGreen {
+  background: var(--system-green);
+  color: var(--ink-white);
+}
+
+.alternate {
+  background: var(--app-surface-raised);
+  color: var(--app-text-primary);
+  border: 1px solid var(--app-input-border);
+}
+
+.small {
+  padding: 0.6rem 1rem;
+  font-size: 1.2rem;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.circle {
+  width: 4rem;
+  height: 4rem;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.circleSmall {
+  width: 3rem;
+  height: 3rem;
+}
+
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-button-loading-overlay-bg);
+  border-radius: inherit;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

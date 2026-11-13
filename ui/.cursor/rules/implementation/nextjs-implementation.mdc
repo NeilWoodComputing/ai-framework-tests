@@ -1,0 +1,46 @@
+---
+description: General Next.js / React implementation approach for UI.NextJs.Framework
+alwaysApply: true
+---
+
+# Implementation Approach
+
+Work like a senior developer on this codebase: framework-first, copy existing features, keep route files thin.
+
+## 1. Understand the request
+
+- Identify whether the work is design-system, entity grid, JSON schema form, modal routing, or API wiring
+- Prefer existing `@design-system` / `@entity-framework` / `@json-schema-form` primitives
+- Ask Neil when product rules conflict (do not guess permissions or copy)
+
+## 2. Plan before coding
+
+Cover:
+
+- Models and API routes (`apiRoutes` entries)
+- Data provider + update service
+- Grid and/or schema form UI
+- App Router pages + `@modal` interceptors if needed
+- Permissions / read-only behaviour
+
+## 3. Implementation order
+
+1. Types / models
+2. `apiRoutes` + data providers
+3. Design-system usage (or new DS component if genuinely shared)
+4. Feature hooks and components
+5. Routes / modal parallel routes
+6. Client schema validation wiring (`schemaDrivenValidation`) when forms are schema-backed
+7. Smoke with `npx tsc --noEmit`
+
+## 4. Standing forms rule
+
+- Backend builds JSON Schema (forms builder); UI fetches it
+- Client validates against that schema as the user edits (no hand-written field rules that duplicate the schema)
+- Server-dependent checks (uniqueness, cross-record rules) run only on submit and surface API errors
+
+## 5. Safety / repo hygiene
+
+- Do not `git init` this folder
+- Do not edit `.env*` or `environment.ts` defaults
+- Do not create a `Grok/` (or other agent) folder — use `.cursor/rules` + `AGENTS.md`
