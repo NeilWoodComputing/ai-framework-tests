@@ -1,0 +1,10 @@
+@import '../framework/design-system/theme/tokens.css';
+
+a {
+  color: var(--primary-action);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

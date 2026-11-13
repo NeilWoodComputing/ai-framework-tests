@@ -1,0 +1,93 @@
+---
+description: Routed modal pattern via Next.js parallel @modal routes and RoutedModal
+globs: "**/@modal/**/*,**/*ModalRoutes*,**/manage/**/page.tsx"
+alwaysApply: false
+---
+
+# Modal Routing Pattern
+
+Modals are **routed** (URL-driven), not only opened with local React state. Next.js parallel routes replace Angular’s auxiliary `modal` outlet.
+
+**Routed modals are for create / edit forms only.** A list page's filters + results render on the page route, never in a modal (see `nextjs-list-pages.mdc`).
+
+## App Router shape
+
+```
+src/app/examples/{area}/
+  layout.tsx                 # renders {children} and {modal}
+  page.tsx                   # the list page: filters + grid inline (no list modal)
+  @modal/
+    default.tsx              # null default
+    (.)manage/item/.../page.tsx  # intercepting route → create / edit form modal
+    (.)manage/item/.../loading.tsx  # RoutedModalLoadingFallback (same title / tid / size; renders as `${tid}-fallback`)
+  manage/
+    item/.../page.tsx        # full-page fallback: list page + form modal on top
+```
+
+`layout.tsx` must accept and render the `modal` slot:
+
+```tsx
+export default function Layout({ children, modal }: { children: ReactNode; modal: ReactNode }) {
+  return (
+    <>
+      {children}
+      {modal}
+    </>
+  );
+}
+```
+
+## Opening & closing
+
+- Open: `useModalNavigate().open(href, pending)` — always pass `pending` ({ title, tid, size, level, closeLabel } matching the target `RoutedModal`) so the modal opens on the click (see below). Plain `router.push` gives no instant shell.
+- Close: `useModalDismiss(dismissHref, preferBackOnClose)` or `RoutedModal`’s built-in dismiss
+- Keep href builders in `shared/utils/{feature}-routes.ts`
+
+## Modal component
+
+Feature modals wrap content in `RoutedModal` from `@design-system`:
+
+- `dismissHref` — route to return to (the list page route)
+- `size` / `level` — match stacking (form directly over the page → `primary`; only a modal stacked over another modal → `secondary`)
+- `presentation` via `modalProps` when a blade is required
+
+Confirm dialogs can use `ConfirmModal` without a dedicated route when they are transient.
+
+## Open immediately, load inside (Unity form-modal loader)
+
+A form modal **never waits for its schema / record before appearing**. Same as Unity UI's `app-form-modal-template [loading]`:
+
+1. **On click** — `useModalNavigate().open(href, pending)` shows `PendingRoutedModalHost` (mounted once in `app/layout.tsx`): modal shell + `CompanyLoader`, before Next.js has the route (dev compile, RSC payload, client chunk).
+2. **Route loading** — `loading.tsx` in the intercepted segment renders `RoutedModalLoadingFallback` (same title / tid / size) while the form chunk loads; in production prefetch this shows instantly. Its dialog tid is `${tid}-fallback`.
+3. **Form mounted** — `RoutedModal` clears the pending shell in a layout effect (one commit, no flash). Pass `loading={form.schemaLoading || !form.formVm}`; `useJsonSchemaEntityForm` starts with `schemaLoading: true`, so the first paint is the loader, never an empty body.
+4. **Loaded** — `ModalShell` drops the overlay and shows the form (children stay mounted under the loader so data effects run).
+
+- The loader is `CompanyLoader` from `@design-system` (port of Unity `app-company-loader`) over `--app-loader-backdrop-bg-strong`; the body keeps `min-height: 40rem` while loading. Don't hand-roll spinners in feature modals.
+- Buttons keep their own in-flight spinner (`Button loading`), not `CompanyLoader`.
+- `Modal` uses a shared body scroll-lock counter, so overlapping modals (pending → real, confirm over form) never leave the page locked or unlocked.
+- **One element per tid.** `tid` is on the real `RoutedModal` dialog panel only. The shell inside it is `${tid}-shell`, the pending shell `${tid}-pending` (its shell `${tid}-pending-shell`), the `loading.tsx` fallback `${tid}-fallback`, and the loader overlay while the form loads `${tid}-loading`. Tests wait for `tid` and for `${tid}-loading` to be gone before typing.
+- Browser Back / Forward while the pending shell is up clears it (`PendingRoutedModalHost` listens for `popstate` and clears when the pathname leaves both the opener and the modal href).
+- Early typing is kept: `useJsonSchemaEntityForm` drops a load that finishes after a newer one started (Strict Mode double mount, reopen), and `JsonSchemaForm` ignores the parent handing back older form data, so a quick Name then Date Born is never wiped.
+## Fast first open (preload)
+
+The page that opens a form modal warms it with `useModalPreload` from `@design-system` — route prefetch plus the form module and its schema — so the first open is as quick as later ones:
+
+```tsx
+useModalPreload(animalFormHref(), () =>
+  import('@json-schema-form').then(({ prefetchSystemJsonSchema }) =>
+    prefetchSystemJsonSchema(apiRoutes.animals.createAnimalSchema)
+  )
+);
+```
+
+- `fetchSystemJsonSchema` caches schemas (5 min, cleared on auth cleared), so repeat opens skip the schema request.
+- Grid row actions with `prefetchHref` are prefetched by `EntityGrid` on hover / focus of the action — always set `prefetchHref` on Edit-style actions.
+- Do not `next/dynamic` / lazy-load `RoutedModal`, `ModalShell` or the form component; that re-introduces the first-open delay.
+- `next dev` compiles each route on first visit and skips prefetch, so the very first open in dev is slower than production. `npm run dev:turbo` (Turbopack) shortens it.
+
+## References
+
+- `src/app/examples/animals/`
+- `src/app/examples/reference-data/`
+- `src/features/animals/shared/routes/AnimalsModalRoutes.tsx`
+- `src/features/reference-data/shared/routes/ReferenceDataModalRoutes.tsx`

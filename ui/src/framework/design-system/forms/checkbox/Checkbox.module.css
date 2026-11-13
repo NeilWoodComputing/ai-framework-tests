@@ -1,0 +1,13 @@
+.field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  font-size: 1.4rem;
+}
+
+.input {
+  width: 1.6rem;
+  height: 1.6rem;
+  accent-color: var(--primary-action);
+}

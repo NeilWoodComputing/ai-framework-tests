@@ -1,0 +1,50 @@
+---
+description: State layer — data providers, search/grid hooks, update services
+globs: "**/*.{data-provider.ts,update.service.ts},**/use-*-grid.ts*,**/use-entity-*.ts*"
+alwaysApply: false
+---
+
+# State Layer Pattern
+
+```
+Data Provider  →  HTTP via systemApiFetch + apiRoutes
+Hooks/state    →  search, grid, form orchestration
+Update Service →  notify grids to reload after mutations
+```
+
+## Data providers
+
+| Base | Use for |
+|------|---------|
+| `AbstractSearchDataProvider` | Paged search |
+| `AbstractEntityDataProvider` | Single-entity CRUD |
+
+- Resolve URLs only through `apiRoutes` / `environment.apiRoot`
+- File names: `{feature}-search.data-provider.ts`, `{entity}-entity.data-provider.ts`
+
+## Hooks (UI orchestration)
+
+| Hook | Use for |
+|------|---------|
+| `useAuthenticatedEntitySearch` / `Local` | Search + auth gate |
+| `useEntityGridState` | Grid preset, paging, row actions binding |
+| `useJsonSchemaEntityForm` | Schema-driven create/edit |
+| Feature `use-{feature}-grid` | Compose the above + permissions |
+
+## Update services
+
+```ts
+class AnimalsUpdateService extends AbstractUpdatedService {}
+export const animalsUpdateService = new AnimalsUpdateService();
+```
+
+Call `trigger()` after successful create/update/delete. Pass the singleton into `useEntityGridState`.
+
+## Models
+
+Keep list/detail types under `state/models/` or `shared/models/`. Reuse framework `SearchRequest` / `SearchResponse` shapes.
+
+## References
+
+- Animals: `animals-search.data-provider.ts`, `animal-entity.data-provider.ts`, `animals-update.service.ts`
+- Reference data: `reference-data-types-search.data-provider.ts`, item entity provider + items update service

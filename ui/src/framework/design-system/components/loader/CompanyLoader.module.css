@@ -1,0 +1,63 @@
+/* Port of Unity UI company-loader (UI.Angular.Framework design-system/loaders/loader-animations/company-loader). */
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 24rem;
+}
+
+.inline {
+  min-height: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.spinner {
+  width: 11rem;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1.65rem solid;
+  border-color: var(--primary-action) transparent;
+  pointer-events: none;
+  animation: companyLoaderSpin 1s linear infinite;
+}
+
+.inline .spinner {
+  width: 3.2rem;
+  border-width: 0.48rem;
+}
+
+@keyframes companyLoaderSpin {
+  to {
+    transform: rotate(0.5turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: companyLoaderPulse 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes companyLoaderPulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}

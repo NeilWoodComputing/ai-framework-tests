@@ -1,0 +1,66 @@
+---
+description: React component structure, naming, tid, and composition conventions
+globs: "**/*.{tsx,ts}"
+alwaysApply: false
+---
+
+# Component Conventions
+
+## File & folder structure
+
+- One component per folder when it has styles: `button/Button.tsx` + `Button.module.css`.
+- Feature UI: PascalCase component files (`AnimalsGrid.tsx`, `AnimalFormModal.tsx`).
+- Hooks: `use-*.ts(x)` (kebab-case file, camelCase export).
+- Data providers / services: `{name}.data-provider.ts`, `{name}-update.service.ts`.
+- Columns: `columns/{feature}-grid-columns.ts(x)`.
+
+## Naming
+
+| Kind | Convention | Example |
+|------|------------|---------|
+| React component | PascalCase | `EntityGrid`, `RoutedModal` |
+| Hook | `use` + PascalCase | `useAnimalsGrid` |
+| CSS module | `{Component}.module.css` | `Button.module.css` |
+| Feature folders | kebab-case | `manage-animals/`, `animal-form-modal/` |
+| `tid` values | kebab-case | `add-animal`, `animals-grid` |
+
+Angular `app-{kebab}` selectors become PascalCase React exports. Do not keep `app-` prefixes in React.
+
+## Client vs server
+
+- Default in `src/app/**`: Server Components.
+- Add `'use client'` at the top of any file that uses hooks, browser APIs, event handlers, or CSS modules consumed by interactive trees.
+- Keep data-provider classes free of React imports when possible; call them from client hooks.
+
+## Props & composition
+
+- Export an explicit `*Props` interface for public design-system and shared feature components.
+- Prefer `children: ReactNode` over render-prop soup unless the framework already uses a render callback.
+- Extend native element props where it helps (`ButtonHTMLAttributes`, `InputHTMLAttributes`) and omit conflicting keys.
+- Use `forwardRef` for inputs that must integrate with `react-hook-form` or parent focus management (`Input`, `Checkbox`, `Switch`).
+
+## Test IDs (`tid`)
+
+- Interactive and container elements take optional `tid?: string`.
+- Render as `data-tid={tid}` (Angular used `data-tid-{value}`; Next uses a single `data-tid` attribute — keep **values** identical to specs).
+- Form field wrappers: `data-tid="{tid}-field"` when the control owns a label wrapper (`Input`, `FormField`).
+- Grids: set `tid` on `EntityGridConfig` so the grid root is targetable.
+
+## Imports
+
+```tsx
+import { Button, PageLayout, H1 } from '@design-system';
+import { EntityGrid, useEntityGridState } from '@entity-framework';
+import { JsonSchemaForm, useJsonSchemaEntityForm } from '@json-schema-form';
+import { apiRoutes } from '@/config/api-routes';
+```
+
+Path aliases only — no `../../../framework/...`.
+
+## Page composition
+
+List pages: thin route `page.tsx` that renders the feature's list page (`PageLayout` + filters + grid inline). Never a landing that opens the list in a modal (`framework/nextjs-list-pages.mdc`). Put behaviour in `src/features/...`, not in the route file beyond wiring params.
+
+## Design-system ownership
+
+New reusable visuals go under `src/framework/design-system/` and follow `nextjs-design-system.mdc`. Feature folders only wire them.

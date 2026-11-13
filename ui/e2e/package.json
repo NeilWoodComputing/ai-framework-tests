@@ -1,0 +1,16 @@
+{
+  "name": "fish-ui-e2e",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "npx bddgen && npx playwright test",
+    "test:ui": "npx bddgen && npx playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/node": "^22.10.2",
+    "playwright-bdd": "^8.5.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

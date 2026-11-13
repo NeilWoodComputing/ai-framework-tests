@@ -1,0 +1,71 @@
+---
+description: JSON schema forms — schema from API, client validates against schema, submit for server-only checks
+globs: "**/*-form-modal/**/*,**/ui-schemas/**/*,**/json-schema-form/**/*"
+alwaysApply: false
+---
+
+# JSON Schema Forms
+
+Forms are driven by **server JSON Schemas** plus co-located UI schema JSON. Framework code lives in `@json-schema-form`.
+
+## Standing rule
+
+1. Backend forms builder emits the schema (required, min/max, format, ranges, enums, messages).
+2. UI fetches the schema and validates **against that schema** while the user edits (`schemaDrivenValidation: true`).
+3. Do **not** hand-write field validators that duplicate the schema.
+4. Checks that need the server (uniqueness, cross-record rules) run **only on submit**; show returned field/form errors on the controls / modal.
+
+## File layout
+
+```
+{entity}-form-modal/
+  {Entity}FormModal.tsx
+  state/
+    {entity}-entity.data-provider.ts
+    {entity}-ui-schema.ts            # builds / selects UI schema
+  ui-schemas/
+    {entity}.ui-schema.json          # layout only (VerticalLayout, controls, scopes)
+```
+
+## Modal wiring
+
+```tsx
+const form = useJsonSchemaEntityForm<Entity>({
+  provider,
+  createSchemaUrl: apiRoutes.area.createSchema,
+  updateSchemaUrl: apiRoutes.area.updateSchema,
+  buildUiSchema,
+  schemaDrivenValidation: true,
+  onCreate: () => { updateService.trigger(); close(); },
+  onUpdate: () => { updateService.trigger(); close(); },
+});
+
+// initializeCreate / initializeEdit in useEffect; reset on unmount
+
+// Open the shell immediately; CompanyLoader shows until the schema/record is ready.
+<RoutedModal loading={form.schemaLoading || !form.formVm} ...>
+  <JsonSchemaForm
+    schema={form.formVm.jsonFormsSchema}
+    uiSchema={form.formVm.uiSchema}
+    data={form.formData}
+    onChange={form.setFormData}
+    validation={{ additionalErrors: form.additionalErrors }}
+  />
+</RoutedModal>
+```
+
+## UI schema
+
+- Layout types supported by System renderers (vertical / horizontal / field grid, etc.)
+- Controls use `"scope": "#/properties/fieldName"`
+- Import JSON and pass through `buildUiSchema` — do not hand-build the field list in JSX
+
+## Data provider
+
+Extend `AbstractEntityDataProvider` (or project equivalent) with `apiRoot` from `apiRoutes`. Persist goes through the provider; surface API validation errors via the form hook.
+
+## References
+
+- `src/features/animals/animal-form-modal/`
+- `src/features/reference-data/reference-data-item-form-modal/`
+- `src/framework/json-schema-form/`

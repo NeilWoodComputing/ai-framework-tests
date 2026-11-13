@@ -1,0 +1,26 @@
+.callout {
+  padding: 1.2rem 1.6rem;
+  border-radius: var(--radius-md);
+  border-left: 4px solid;
+  font-size: 1.4rem;
+}
+
+.info {
+  background: rgba(33, 150, 243, 0.1);
+  border-color: #2196f3;
+}
+
+.success {
+  background: rgba(114, 180, 83, 0.15);
+  border-color: var(--system-green);
+}
+
+.warning {
+  background: rgba(255, 152, 0, 0.12);
+  border-color: #ff9800;
+}
+
+.error {
+  background: rgba(207, 19, 55, 0.1);
+  border-color: var(--system-red);
+}

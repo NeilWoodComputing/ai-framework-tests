@@ -1,0 +1,52 @@
+.anchor {
+  display: inline-block;
+}
+
+/* Portalled to <body>: fixed to the viewport, above grids and every modal level. */
+.menu {
+  position: fixed;
+  z-index: var(--z-index-popover, 1300);
+  min-width: 16rem;
+  max-width: calc(100vw - 1.6rem);
+  margin: 0;
+  padding: 0.4rem 0;
+  list-style: none;
+  font-size: 1.4rem;
+  color: var(--app-text-primary);
+  background: var(--app-surface-raised);
+  border: 1px solid var(--app-grid-border);
+  border-radius: 0.4rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.item:hover,
+.item:focus-visible {
+  background: var(--app-grid-row-hover-bg);
+  outline: none;
+}
+
+.item:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.icon {
+  display: inline-flex;
+  width: 1.8rem;
+  height: 1.8rem;
+}
